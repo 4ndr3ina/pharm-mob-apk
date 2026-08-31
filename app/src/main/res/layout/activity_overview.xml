@@ -20,63 +20,80 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Main Menu"
+        android:text="@string/main_menu"
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="@color/primary_blue"
         android:padding="20dp"
         android:gravity="center_horizontal" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp">
+        android:layout_height="match_parent">
 
-        <Button
-            android:id="@+id/btnViewAllPrescriptions"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:layout_margin="10dp"
-            android:text="VIEW ALL PRESCRIPTIONS"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/primary_blue" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
 
-        <Button
-            android:id="@+id/btnAddNew"
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:layout_margin="10dp"
-            android:text="+ ADD NEW MEDICATION"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/dark_blue" />
+            <Button
+                android:id="@+id/btnViewAllPrescriptions"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_margin="10dp"
+                android:text="@string/view_all_prescriptions"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/primary_blue" />
 
-        <Button
-            android:id="@+id/btnDeleteMedication"
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:layout_margin="10dp"
-            android:text="DELETE A MEDICATION"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/dark_blue" />
+            <Button
+                android:id="@+id/btnAddNew"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_margin="10dp"
+                android:text="@string/add_new_medication"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/dark_blue" />
 
-        <Button
-            android:id="@+id/btnExport"
-            android:layout_width="match_parent"
-            android:layout_height="72dp"
-            android:layout_margin="10dp"
-            android:text="EXPORT ACTIVE MEDICATIONS"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:backgroundTint="@color/primary_blue" />
+            <Button
+                android:id="@+id/btnDeleteMedication"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_margin="10dp"
+                android:text="@string/delete_medication_btn"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/dark_blue" />
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/btnExport"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_margin="10dp"
+                android:text="@string/export_medications"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/primary_blue" />
+
+            <!-- Requirement (G): Button to trigger the Content Provider test -->
+            <Button
+                android:id="@+id/btnTestProvider"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_margin="10dp"
+                android:text="@string/test_content_provider"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:backgroundTint="#FF9800" />
+
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>
