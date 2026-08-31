@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tvAndrianiKoui"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Andriani Koui"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:background="@color/dark_blue"
+            android:padding="16dp"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Medication Name"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Reusable label/value pairs -->
+        <TextView style="@style/DetailLabel" android:text="ID (UID)" />
+        <TextView android:id="@+id/tvUid" style="@style/DetailValue" />
+
+        <TextView style="@style/DetailLabel" android:text="Description" />
+        <TextView android:id="@+id/tvDescription" style="@style/DetailValue" />
+
+        <TextView style="@style/DetailLabel" android:text="Start Date" />
+        <TextView android:id="@+id/tvStartDate" style="@style/DetailValue" />
+
+        <TextView style="@style/DetailLabel" android:text="End Date" />
+        <TextView android:id="@+id/tvEndDate" style="@style/DetailValue" />
+
+        <TextView style="@style/DetailLabel" android:text="Time to Take" />
+        <TextView android:id="@+id/tvTimeTerm" style="@style/DetailValue" />
+
+        <TextView style="@style/DetailLabel" android:text="Doctor Name" />
+        <TextView android:id="@+id/tvDoctorName" style="@style/DetailValue" />
+
+        <TextView style="@style/DetailLabel" android:text="Doctor Location" />
+        <TextView android:id="@+id/tvDoctorLocation" style="@style/DetailValue" />
+
+        <TextView style="@style/DetailLabel" android:text="Active?" />
+        <TextView android:id="@+id/tvIsActive" style="@style/DetailValue" />
+
+        <TextView style="@style/DetailLabel" android:text="Received Today?" />
+        <TextView android:id="@+id/tvHasReceivedToday" style="@style/DetailValue" />
+
+        <TextView style="@style/DetailLabel" android:text="Last Date Received" />
+        <TextView android:id="@+id/tvLastDateReceived" style="@style/DetailValue" />
+
+        <!-- Requirement (E) buttons live here -->
+        <Button
+            android:id="@+id/btnMarkReceived"
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:text="I RECEIVED THIS TODAY"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/dark_blue"
+            android:layout_marginTop="28dp" />
+
+        <Button
+            android:id="@+id/btnViewOnMap"
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:text="VIEW DOCTOR ON MAP"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/primary_blue"
+            android:layout_marginTop="16dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+</ScrollView>

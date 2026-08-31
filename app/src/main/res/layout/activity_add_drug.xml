@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tvAndrianiKoui"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Andriani Koui"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:background="@color/dark_blue"
+            android:padding="16dp"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add New Medication"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="@color/primary_blue"
+            android:layout_marginBottom="24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Medication Name"
+            android:textSize="18sp"
+            android:textColor="@color/text_dark"
+            android:layout_marginBottom="6dp" />
+
+        <EditText
+            android:id="@+id/etShortName"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="e.g. Aspirin"
+            android:textSize="20sp"
+            android:textColorHint="@color/hint_grey"
+            android:padding="14dp"
+            android:background="@color/light_blue"
+            android:inputType="text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Description (optional)"
+            android:textSize="18sp"
+            android:textColor="@color/text_dark"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="6dp" />
+
+        <EditText
+            android:id="@+id/etDescription"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:hint="What is it for?"
+            android:textSize="20sp"
+            android:textColorHint="@color/hint_grey"
+            android:padding="14dp"
+            android:background="@color/light_blue"
+            android:inputType="text" />
+
+        <Button
+            android:id="@+id/btnStartDate"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="Choose Start Date"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/primary_blue"
+            android:layout_marginTop="24dp" />
+
+        <TextView
+            android:id="@+id/tvStartDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Date: not set"
+            android:textSize="18sp"
+            android:textColor="@color/text_dark"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnEndDate"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:text="Choose End Date"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/primary_blue"
+            android:layout_marginTop="24dp" />
+
+        <TextView
+            android:id="@+id/tvEndDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Date: not set"
+            android:textSize="18sp"
+            android:textColor="@color/text_dark"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="When to take it (select all that apply)"
+            android:textSize="18sp"
+            android:textColor="@color/text_dark"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="6dp" />
+
+        <!-- Populated at runtime with one CheckBox per TimeTerm (before-breakfast,
+             at-breakfast, ... after-dinner) - lets a drug be taken at several
+             times a day. -->
+        <LinearLayout
+            android:id="@+id/timeTermCheckboxContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/light_blue"
+            android:padding="10dp"
+            android:clickable="false"
+            android:descendantFocusability="beforeDescendants" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Doctor (optional)"
+            android:textSize="18sp"
+            android:textColor="@color/text_dark"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="6dp" />
+
+        <Spinner
+            android:id="@+id/spinnerDoctor"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@color/light_blue"
+            android:padding="10dp" />
+
+        <!-- Only shown once a real doctor (not "None") is selected, so the
+             user can confirm the location is correct before saving. -->
+        <Button
+            android:id="@+id/btnViewDoctorOnMap"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="VIEW ON MAP"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/primary_blue"
+            android:layout_marginTop="8dp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/btnAddNewDoctor"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="+ Add a New Doctor"
+            android:textSize="16sp"
+            android:textColor="@color/primary_blue"
+            android:backgroundTint="@color/white"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:text="SAVE"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/dark_blue"
+            android:layout_marginTop="32dp" />
+
+    </LinearLayout>
+</ScrollView>

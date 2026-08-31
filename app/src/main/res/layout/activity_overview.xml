@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/tvAndrianiKoui"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Andriani Koui"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:background="@color/dark_blue"
+        android:padding="16dp"
+        android:gravity="center" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Main Menu"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/primary_blue"
+        android:padding="20dp"
+        android:gravity="center_horizontal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/btnViewAllPrescriptions"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_margin="10dp"
+            android:text="VIEW ALL PRESCRIPTIONS"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/primary_blue" />
+
+        <Button
+            android:id="@+id/btnAddNew"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_margin="10dp"
+            android:text="+ ADD NEW MEDICATION"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/dark_blue" />
+
+        <Button
+            android:id="@+id/btnDeleteMedication"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_margin="10dp"
+            android:text="DELETE A MEDICATION"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/dark_blue" />
+
+        <Button
+            android:id="@+id/btnExport"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_margin="10dp"
+            android:text="EXPORT ACTIVE MEDICATIONS"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/primary_blue" />
+
+    </LinearLayout>
+
+</LinearLayout>
