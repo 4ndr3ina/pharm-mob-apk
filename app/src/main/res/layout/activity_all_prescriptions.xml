@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white">
+
+    <TextView
+        android:id="@+id/tvAndrianiKoui"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Andriani Koui"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:textColor="@color/white"
+        android:background="@color/dark_blue"
+        android:padding="16dp"
+        android:gravity="center" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnFilterActive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnFilterFuture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Future"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnFilterExpired"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Expired"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnFilterTakenToday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Taken Today" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/tvEmptyMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No prescriptions found."
+        android:textSize="18sp"
+        android:textColor="@color/hint_grey"
+        android:gravity="center"
+        android:padding="24dp"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingHorizontal="20dp"
+        android:clipToPadding="false" />
+
+</LinearLayout>

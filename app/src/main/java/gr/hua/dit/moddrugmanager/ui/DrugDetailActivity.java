@@ -51,7 +51,7 @@ public class DrugDetailActivity extends AppCompatActivity {
         uid = getIntent().getIntExtra(OverviewActivity.EXTRA_UID, -1);
 
         TextView tvFullName = findViewById(R.id.tvAndrianiKoui);
-        tvFullName.setText(STUDENT_FULL_NAME);
+        if (tvFullName != null) tvFullName.setText(STUDENT_FULL_NAME);
 
         tvName = findViewById(R.id.tvName);
         tvUid = findViewById(R.id.tvUid);
@@ -118,7 +118,6 @@ public class DrugDetailActivity extends AppCompatActivity {
 
     private void loadDrug() {
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            // Fetch the drug AND all its time terms using the custom relation POJO
             PrescriptionDrugWithTimeTerms item = db.prescriptionDrugDao().getByIdWithTimeTermsSync(uid);
             
             if (item == null || item.drug == null) {
@@ -141,7 +140,6 @@ public class DrugDetailActivity extends AppCompatActivity {
         tvStartDate.setText(displayFormat.format(drug.getStartDate()));
         tvEndDate.setText(displayFormat.format(drug.getEndDate()));
         
-        // Show all time terms (e.g., "before-breakfast, at-dinner")
         tvTimeTerm.setText(item.getTimeTermsDisplay());
         
         tvDoctorName.setText(emptyIfNull(drug.getDoctorName()));
@@ -152,8 +150,11 @@ public class DrugDetailActivity extends AppCompatActivity {
                 ? displayFormat.format(drug.getLastDateReceived())
                 : "Never");
 
-        boolean hasLocation = !TextUtils.isEmpty(drug.getDoctorLocation());
+        boolean hasLocation = !TextUtils.isEmpty(drug.getDoctorLocation()) || drug.getDoctorLatitude() != null;
         btnViewOnMap.setVisibility(hasLocation ? View.VISIBLE : View.GONE);
+
+        // Hide "Mark Received" if the medication is not active or if it has already been taken today
+        btnMarkReceived.setVisibility(drug.isActive() && !drug.isHasReceivedToday() ? View.VISIBLE : View.GONE);
     }
 
     private String emptyIfNull(String value) {
@@ -161,14 +162,37 @@ public class DrugDetailActivity extends AppCompatActivity {
     }
 
     private void openInMaps() {
-        if (currentDrug == null || TextUtils.isEmpty(currentDrug.getDoctorLocation())) return;
-        Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(currentDrug.getDoctorLocation()));
-        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-        mapIntent.setPackage("com.google.android.apps.maps");
-        if (mapIntent.resolveActivity(getPackageManager()) != null) {
-            startActivity(mapIntent);
+        if (currentDrug == null) return;
+
+        Double lat = currentDrug.getDoctorLatitude();
+        Double lng = currentDrug.getDoctorLongitude();
+        String address = currentDrug.getDoctorLocation();
+
+        if (lat == null && lng == null && TextUtils.isEmpty(address)) {
+            Toast.makeText(this, "No location data available for this doctor", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Uri geoUri;
+        String label = Uri.encode(currentDrug.getDoctorName() != null ? currentDrug.getDoctorName() : "Doctor");
+        if (lat != null && lng != null) {
+            // geo:lat,lng?q=lat,lng(label)
+            geoUri = Uri.parse("geo:" + lat + "," + lng + "?q=" + lat + "," + lng + "(" + label + ")");
         } else {
-            Toast.makeText(this, "Google Maps app not found", Toast.LENGTH_SHORT).show();
+            // geo:0,0?q=address
+            geoUri = Uri.parse("geo:0,0?q=" + Uri.encode(address));
+        }
+
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, geoUri);
+        // Do NOT setPackage("com.google.android.apps.maps") to allow other map apps to respond
+        try {
+            startActivity(mapIntent);
+        } catch (android.content.ActivityNotFoundException e) {
+            Log.d(TAG, "No map app found, falling back to browser");
+            Uri webUri = (lat != null && lng != null)
+                    ? Uri.parse("https://www.google.com/maps/search/?api=1&query=" + lat + "," + lng)
+                    : Uri.parse("https://www.google.com/maps/search/?api=1&query=" + Uri.encode(address));
+            startActivity(new Intent(Intent.ACTION_VIEW, webUri));
         }
     }
 

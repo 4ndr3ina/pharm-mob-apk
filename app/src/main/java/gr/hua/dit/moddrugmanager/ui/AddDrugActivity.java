@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import gr.hua.dit.moddrugmanager.R;
@@ -34,9 +35,6 @@ import gr.hua.dit.moddrugmanager.data.TimeTerm;
  * Requirement (A): Record a new Prescription Drug.
  * Supports multiple Time Terms (Checkboxes) and a Doctor Spinner.
  * Uses LiveData to observe TimeTerms, avoiding race conditions during initial seeding.
- *
- * NEW: selecting a saved Doctor reveals a "VIEW ON MAP" button so the user can
- * confirm the doctor's location is correct BEFORE saving the medication.
  */
 public class AddDrugActivity extends AppCompatActivity {
 
@@ -56,7 +54,11 @@ public class AddDrugActivity extends AppCompatActivity {
 
     private final List<CheckBox> timeTermCheckboxes = new ArrayList<>();
     private List<Doctor> doctors = new ArrayList<>();
-    private Doctor selectedDoctor = null; // kept in sync with the spinner selection
+    private Doctor selectedDoctor = null; 
+    
+    // Flags for selection persistence
+    private boolean shouldReloadDoctors = false;
+    private int restoredDoctorId = -1;
 
     private AppDatabase db;
 
@@ -84,12 +86,18 @@ public class AddDrugActivity extends AppCompatActivity {
         btnEndDate = findViewById(R.id.btnEndDate);
         btnSave = findViewById(R.id.btnSave);
 
-        // Fail loudly instead of silently doing nothing, so a layout/ID
-        // mismatch shows up immediately in Logcat instead of looking like
-        // "the feature doesn't work" with no clue why.
-        if (timeTermCheckboxContainer == null) {
-            Log.e(TAG, "timeTermCheckboxContainer is NULL - check that activity_add_drug.xml " +
-                    "has a view with android:id=\"@+id/timeTermCheckboxContainer\"");
+        // Restore state if activity was recreated (e.g. returning from Maps on low-RAM device)
+        if (savedInstanceState != null) {
+            restoredDoctorId = savedInstanceState.getInt("selected_doctor_id", -1);
+            shouldReloadDoctors = savedInstanceState.getBoolean("should_reload", false);
+            if (savedInstanceState.containsKey("start_date")) {
+                startDateMillis = savedInstanceState.getLong("start_date");
+                tvStartDate.setText("Start Date: " + displayFormat.format(startDateMillis));
+            }
+            if (savedInstanceState.containsKey("end_date")) {
+                endDateMillis = savedInstanceState.getLong("end_date");
+                tvEndDate.setText("End Date: " + displayFormat.format(endDateMillis));
+            }
         }
 
         btnStartDate.setOnClickListener(v -> pickDate(true));
@@ -99,6 +107,7 @@ public class AddDrugActivity extends AppCompatActivity {
         if (btnAddNewDoctor != null) {
             btnAddNewDoctor.setOnClickListener(v -> {
                 Log.d(TAG, "Navigating to AddDoctorActivity");
+                shouldReloadDoctors = true; // Refresh list only when returning from adding a doctor
                 startActivity(new Intent(this, AddDoctorActivity.class));
             });
         }
@@ -113,7 +122,6 @@ public class AddDrugActivity extends AppCompatActivity {
                 if (position > 0 && doctors != null && position <= doctors.size()) {
                     selectedDoctor = doctors.get(position - 1);
                     if (btnViewDoctorOnMap != null) btnViewDoctorOnMap.setVisibility(View.VISIBLE);
-                    Log.d(TAG, "Doctor selected: " + selectedDoctor.getName());
                 } else {
                     selectedDoctor = null;
                     if (btnViewDoctorOnMap != null) btnViewDoctorOnMap.setVisibility(View.GONE);
@@ -132,77 +140,25 @@ public class AddDrugActivity extends AppCompatActivity {
         ensureTimeTermsExist();
     }
 
-    // SAFETY NET: whatever is/isn't working inside AppDatabase's own seeding
-    // logic, this guarantees the 9 fixed TimeTerm rows exist by the time this
-    // screen is used. Uses Room's normal insert() (not raw SQL), which is
-    // guaranteed to notify the LiveData observer in observeTimeTerms() the
-    // moment new rows land - so the checkboxes will appear automatically.
-    private void ensureTimeTermsExist() {
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            int existing = db.timeTermDao().count();
-            Log.d(TAG, "TimeTerm row count check: " + existing);
-            if (existing > 0) return;
-
-            String[] names = {
-                    "before-breakfast", "at-breakfast", "after-breakfast",
-                    "before-lunch", "at-lunch", "after-lunch",
-                    "before-dinner", "at-dinner", "after-dinner"
-            };
-            List<TimeTerm> seed = new ArrayList<>();
-            for (int i = 0; i < names.length; i++) {
-                seed.add(new TimeTerm(names[i], i));
-            }
-            db.timeTermDao().insertAll(seed);
-            Log.d(TAG, "ensureTimeTermsExist(): inserted " + seed.size() + " TimeTerm rows via DAO");
-        });
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (selectedDoctor != null) {
+            outState.putInt("selected_doctor_id", selectedDoctor.getId());
+        }
+        if (startDateMillis != null) outState.putLong("start_date", startDateMillis);
+        if (endDateMillis != null) outState.putLong("end_date", endDateMillis);
+        outState.putBoolean("should_reload", shouldReloadDoctors);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        loadDoctorsIntoSpinner();
-    }
-
-    private void observeTimeTerms() {
-        // LiveData ensures the UI updates as soon as the database is seeded,
-        // even if the checkboxes are requested before seeding finishes.
-        db.timeTermDao().getAll().observe(this, terms -> {
-            if (timeTermCheckboxContainer == null) return;
-
-            if (terms == null || terms.isEmpty()) {
-                Log.d(TAG, "Waiting for TimeTerms to be populated...");
-                return;
-            }
-
-            Log.d(TAG, "Populating " + terms.size() + " time term checkboxes");
-            timeTermCheckboxContainer.removeAllViews();
-            timeTermCheckboxes.clear();
-
-            for (TimeTerm term : terms) {
-                CheckBox cb = new CheckBox(this);
-                cb.setText(term.getTermName());
-                cb.setTag(term.getId());
-                cb.setTextSize(18);
-                cb.setTextColor(getColor(R.color.text_dark));
-                cb.setButtonTintList(
-                        android.content.res.ColorStateList.valueOf(getColor(R.color.dark_blue)));
-                cb.setPadding(8, 16, 8, 16);
-                cb.setMinHeight(64);
-                cb.setClickable(true);
-                cb.setFocusable(true);
-                cb.setEnabled(true);
-                final TimeTerm capturedTerm = term;
-                cb.setOnClickListener(v -> {
-                    boolean nowChecked = ((CheckBox) v).isChecked();
-                    Log.d(TAG, "Checkbox CLICKED '" + capturedTerm.getTermName() + "' -> " + nowChecked);
-                });
-                cb.setOnCheckedChangeListener((buttonView, isChecked) ->
-                        Log.d(TAG, "Checkbox '" + capturedTerm.getTermName() + "' -> " + isChecked));
-
-                timeTermCheckboxContainer.addView(cb);
-                timeTermCheckboxes.add(cb);
-            }
-        });
+        // Only reload if returning from AddDoctorActivity, to preserve selection otherwise
+        if (shouldReloadDoctors) {
+            loadDoctorsIntoSpinner();
+            shouldReloadDoctors = false;
+        }
     }
 
     private void loadDoctorsIntoSpinner() {
@@ -210,8 +166,12 @@ public class AddDrugActivity extends AppCompatActivity {
             doctors = db.doctorDao().getAllSync();
             runOnUiThread(() -> {
                 if (spinnerDoctor == null) return;
+
+                // Capture selection to restore it
+                int idToRestore = (selectedDoctor != null) ? selectedDoctor.getId() : restoredDoctorId;
+
                 List<String> names = new ArrayList<>();
-                names.add("None"); // Default option
+                names.add("None");
                 if (doctors != null) {
                     for (Doctor d : doctors) names.add(d.getName());
                 }
@@ -220,63 +180,82 @@ public class AddDrugActivity extends AppCompatActivity {
                         this, android.R.layout.simple_spinner_item, names);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinnerDoctor.setAdapter(adapter);
-                Log.d(TAG, "Loaded " + doctors.size() + " saved doctors into spinner");
+
+                // Restore selection
+                if (idToRestore != -1 && doctors != null) {
+                    for (int i = 0; i < doctors.size(); i++) {
+                        if (doctors.get(i).getId() == idToRestore) {
+                            spinnerDoctor.setSelection(i + 1);
+                            break;
+                        }
+                    }
+                }
             });
         });
     }
 
-    // Opens the currently-selected doctor's location on the map, using their
-    // saved coordinates if available (exact pin), or their address as a text
-    // search otherwise. Launches directly and catches failure instead of
-    // pre-checking with resolveActivity(), which can incorrectly report "no
-    // app found" on Android 11+ due to package-visibility restrictions.
     private void openSelectedDoctorOnMap() {
-        if (selectedDoctor == null) {
-            Toast.makeText(this, "Please select a doctor first", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (selectedDoctor == null) return;
 
         Double lat = selectedDoctor.getLatitude();
         Double lng = selectedDoctor.getLongitude();
         String address = selectedDoctor.getAddress();
 
         Uri geoUri;
+        String label = Uri.encode(selectedDoctor.getName());
         if (lat != null && lng != null) {
-            geoUri = Uri.parse("geo:" + lat + "," + lng + "?q=" + lat + "," + lng
-                    + "(" + Uri.encode(selectedDoctor.getName()) + ")");
-            Log.d(TAG, "Opening map at exact coordinates for " + selectedDoctor.getName()
-                    + " (" + lat + ", " + lng + ")");
+            geoUri = Uri.parse("geo:" + lat + "," + lng + "?q=" + lat + "," + lng + "(" + label + ")");
         } else {
             geoUri = Uri.parse("geo:0,0?q=" + Uri.encode(address));
-            Log.d(TAG, "Opening map via text search for " + selectedDoctor.getName());
         }
 
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, geoUri);
         try {
-            startActivity(new Intent(Intent.ACTION_VIEW, geoUri));
-            return;
+            startActivity(mapIntent);
         } catch (android.content.ActivityNotFoundException e) {
-            Log.d(TAG, "No geo: URI handler installed, falling back to browser");
-        }
-
-        try {
             Uri webUri = (lat != null && lng != null)
                     ? Uri.parse("https://www.google.com/maps/search/?api=1&query=" + lat + "," + lng)
                     : Uri.parse("https://www.google.com/maps/search/?api=1&query=" + Uri.encode(address));
             startActivity(new Intent(Intent.ACTION_VIEW, webUri));
-        } catch (android.content.ActivityNotFoundException e) {
-            Toast.makeText(this, "No app available to show the map", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void ensureTimeTermsExist() {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            int existing = db.timeTermDao().count();
+            if (existing > 0) return;
+            String[] names = {"before-breakfast", "at-breakfast", "after-breakfast", "before-lunch", "at-lunch", "after-lunch", "before-dinner", "at-dinner", "after-dinner"};
+            List<TimeTerm> seed = new ArrayList<>();
+            for (int i = 0; i < names.length; i++) seed.add(new TimeTerm(names[i], i));
+            db.timeTermDao().insertAll(seed);
+        });
+    }
+
+    private void observeTimeTerms() {
+        db.timeTermDao().getAll().observe(this, terms -> {
+            if (timeTermCheckboxContainer == null || terms == null || terms.isEmpty()) return;
+            timeTermCheckboxContainer.removeAllViews();
+            timeTermCheckboxes.clear();
+            for (TimeTerm term : terms) {
+                CheckBox cb = new CheckBox(this);
+                cb.setText(term.getTermName());
+                cb.setTag(term.getId());
+                cb.setTextSize(18);
+                cb.setPadding(8, 16, 8, 16);
+                timeTermCheckboxContainer.addView(cb);
+                timeTermCheckboxes.add(cb);
+            }
+        });
     }
 
     private void pickDate(boolean isStart) {
         Calendar cal = Calendar.getInstance();
-        DatePickerDialog dialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+        new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
             Calendar picked = Calendar.getInstance();
             picked.set(year, month, dayOfMonth, 0, 0, 0);
             picked.set(Calendar.MILLISECOND, 0);
             long millis = picked.getTimeInMillis();
             String formatted = displayFormat.format(picked.getTime());
-
             if (isStart) {
                 startDateMillis = millis;
                 tvStartDate.setText("Start Date: " + formatted);
@@ -284,55 +263,31 @@ public class AddDrugActivity extends AppCompatActivity {
                 endDateMillis = millis;
                 tvEndDate.setText("End Date: " + formatted);
             }
-        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
-        dialog.show();
+        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
     }
 
     private void onSaveClicked() {
         String shortName = etShortName.getText().toString().trim();
-        String description = etDescription.getText().toString().trim();
-
         if (shortName.isEmpty() || startDateMillis == null || endDateMillis == null) {
-            Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (endDateMillis <= startDateMillis) {
             Toast.makeText(this, "End Date must be after Start Date", Toast.LENGTH_SHORT).show();
             return;
         }
-
         List<Integer> selectedIds = new ArrayList<>();
-        for (CheckBox cb : timeTermCheckboxes) {
-            if (cb.isChecked()) selectedIds.add((Integer) cb.getTag());
-        }
-
+        for (CheckBox cb : timeTermCheckboxes) if (cb.isChecked()) selectedIds.add((Integer) cb.getTag());
         if (selectedIds.isEmpty()) {
-            Toast.makeText(this, "Please select at least one time", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Select at least one time", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        int docPos = spinnerDoctor.getSelectedItemPosition();
-        String docName = null, docLoc = null;
-        Double docLat = null, docLng = null;
-        if (docPos > 0 && doctors != null && docPos <= doctors.size()) {
-            Doctor d = doctors.get(docPos - 1);
-            docName = d.getName();
-            docLoc = d.getAddress();
-            docLat = d.getLatitude();
-            docLng = d.getLongitude();
-        }
-
-        PrescriptionDrug drug = new PrescriptionDrug(
-                shortName,
-                description.isEmpty() ? null : description,
-                startDateMillis,
-                endDateMillis,
-                docName,
-                docLoc,
-                docLat,
-                docLng
-        );
+        PrescriptionDrug drug = new PrescriptionDrug(shortName, etDescription.getText().toString(), startDateMillis, endDateMillis, 
+            selectedDoctor != null ? selectedDoctor.getName() : null,
+            selectedDoctor != null ? selectedDoctor.getAddress() : null,
+            selectedDoctor != null ? selectedDoctor.getLatitude() : null,
+            selectedDoctor != null ? selectedDoctor.getLongitude() : null);
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
             db.prescriptionDrugDao().insertWithTimeTerms(drug, selectedIds);

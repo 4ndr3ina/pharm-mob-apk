@@ -68,6 +68,23 @@ public abstract class PrescriptionDrugDao {
             "WHERE x.drugUid = prescription_drug.uid) ASC")
     public abstract LiveData<List<PrescriptionDrugWithTimeTerms>> getActiveDrugsOrderedByTime();
 
+    // ---- Filters for View All Prescriptions ----
+    @Transaction
+    @Query("SELECT * FROM prescription_drug WHERE is_active = 1 ORDER BY uid ASC")
+    public abstract LiveData<List<PrescriptionDrugWithTimeTerms>> getActivePrescriptions();
+
+    @Transaction
+    @Query("SELECT * FROM prescription_drug WHERE is_active = 0 AND end_date < :todayStart ORDER BY uid ASC")
+    public abstract LiveData<List<PrescriptionDrugWithTimeTerms>> getExpiredPrescriptions(long todayStart);
+
+    @Transaction
+    @Query("SELECT * FROM prescription_drug WHERE is_active = 0 AND start_date > :todayStart ORDER BY uid ASC")
+    public abstract LiveData<List<PrescriptionDrugWithTimeTerms>> getFuturePrescriptions(long todayStart);
+
+    @Transaction
+    @Query("SELECT * FROM prescription_drug WHERE has_received_today = 1 AND is_active = 1 ORDER BY uid ASC")
+    public abstract LiveData<List<PrescriptionDrugWithTimeTerms>> getTakenTodayPrescriptions();
+
     // Synchronous variant, used by (F) export
     @Transaction
     @Query("SELECT * FROM prescription_drug WHERE is_active = 1 " +

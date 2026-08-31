@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -31,6 +32,7 @@
         <activity android:name=".ui.AddDoctorActivity" android:exported="false" />
         <activity android:name=".ui.DeleteDrugActivity" android:exported="false" />
         <activity android:name=".ui.DrugDetailActivity" android:exported="false" />
+        <activity android:name=".ui.AllPrescriptionsActivity" android:exported="false" />
 
         <provider
             android:name=".provider.DrugContentProvider"

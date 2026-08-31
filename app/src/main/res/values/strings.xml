@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">pharm-mob-apk</string>
-    <string name="student_name">Full Name Here</string>
-    <string name="add_new_medication">Add New Medication</string>
+    <string name="student_name">Andriani Koui</string>
+    <string name="add_new_medication">+ ADD NEW MEDICATION</string>
     <string name="medication_name">Medication Name</string>
     <string name="hint_aspirin">e.g. Aspirin</string>
     <string name="description_optional">Description (optional)</string>
@@ -38,4 +38,8 @@
     <string name="action_delete">Delete Medication</string>
     <string name="action_edit">Edit Medication</string>
     <string name="action_share">Share Medication</string>
+    <string name="main_menu">Main Menu</string>
+    <string name="view_all_prescriptions">VIEW ALL PRESCRIPTIONS</string>
+    <string name="delete_medication_btn">DELETE A MEDICATION</string>
+    <string name="export_medications">EXPORT ACTIVE MEDICATIONS</string>
 </resources>
