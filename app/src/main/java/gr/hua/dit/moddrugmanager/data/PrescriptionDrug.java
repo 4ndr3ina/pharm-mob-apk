@@ -4,33 +4,28 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
-import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 /**
  * Represents a single Prescription Drug, as described in Comment #1 of the spec.
  *
- * User-provided fields: shortName, description, startDate, endDate, timeTermId,
- * doctorName (nullable), doctorLocation (nullable).
+ * NOTE on Time Term: a drug can now be taken at MULTIPLE times of day (e.g.
+ * before-breakfast AND after-dinner), so the old single time_term_id foreign
+ * key was removed. The relationship now lives in
+ * PrescriptionDrugTimeTermCrossRef (a many-to-many junction table).
  *
- * System-managed fields (null/false at creation, updated later by the user or by
- * the periodic background check, see Comment #3): isActive, lastDateReceived,
- * hasReceivedToday.
+ * NOTE on Doctor: doctorName/doctorLocation remain plain text fields, exactly
+ * as the spec requires (and as used by the (F) export). They can now be
+ * auto-filled by picking a previously saved Doctor (see Doctor.java), which
+ * also carries geocoded coordinates - doctorLatitude/doctorLongitude are an
+ * optional denormalized copy of those coordinates, used to drop an exact pin
+ * on Google Maps in requirement (E) instead of relying on a text search.
  *
- * Dates are stored as epoch millis (long) so we can easily compare against
- * System.currentTimeMillis() / "today" when computing isActive and hasReceivedToday.
+ * System-managed fields (null/false at creation, updated later by the user or
+ * by the periodic background check, see Comment #3): isActive,
+ * lastDateReceived, hasReceivedToday.
  */
-@Entity(
-        tableName = "prescription_drug",
-        foreignKeys = @ForeignKey(
-                entity = TimeTerm.class,
-                parentColumns = "id",
-                childColumns = "time_term_id",
-                onDelete = ForeignKey.RESTRICT
-        ),
-        indices = {@Index("time_term_id")}
-)
+@Entity(tableName = "prescription_drug")
 public class PrescriptionDrug {
 
     @PrimaryKey(autoGenerate = true)
@@ -50,9 +45,6 @@ public class PrescriptionDrug {
     @ColumnInfo(name = "end_date")
     private long endDate; // epoch millis, day-precision
 
-    @ColumnInfo(name = "time_term_id")
-    private int timeTermId; // FK -> TimeTerm.id
-
     @Nullable
     @ColumnInfo(name = "doctor_name")
     private String doctorName;
@@ -61,126 +53,76 @@ public class PrescriptionDrug {
     @ColumnInfo(name = "doctor_location")
     private String doctorLocation;
 
+    @Nullable
+    @ColumnInfo(name = "doctor_latitude")
+    private Double doctorLatitude;
+
+    @Nullable
+    @ColumnInfo(name = "doctor_longitude")
+    private Double doctorLongitude;
+
     // ---- system-managed fields (Comment #3) ----
 
     @ColumnInfo(name = "is_active")
-    private boolean isActive; // false/null-equivalent at creation
+    private boolean isActive;
 
     @Nullable
     @ColumnInfo(name = "last_date_received")
-    private Long lastDateReceived; // null at creation; epoch millis once set
+    private Long lastDateReceived;
 
     @ColumnInfo(name = "has_received_today")
-    private boolean hasReceivedToday; // false at creation
+    private boolean hasReceivedToday;
 
     public PrescriptionDrug(@NonNull String shortName, @Nullable String description,
-                            long startDate, long endDate, int timeTermId,
-                            @Nullable String doctorName, @Nullable String doctorLocation) {
+                            long startDate, long endDate,
+                            @Nullable String doctorName, @Nullable String doctorLocation,
+                            @Nullable Double doctorLatitude, @Nullable Double doctorLongitude) {
         this.shortName = shortName;
         this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.timeTermId = timeTermId;
         this.doctorName = doctorName;
         this.doctorLocation = doctorLocation;
-        // system-managed defaults on creation
+        this.doctorLatitude = doctorLatitude;
+        this.doctorLongitude = doctorLongitude;
         this.isActive = false;
         this.lastDateReceived = null;
         this.hasReceivedToday = false;
     }
 
-    // ---- getters / setters ----
+    public int getUid() { return uid; }
+    public void setUid(int uid) { this.uid = uid; }
 
-    public int getUid() {
-        return uid;
-    }
+    @NonNull public String getShortName() { return shortName; }
+    public void setShortName(@NonNull String shortName) { this.shortName = shortName; }
 
-    public void setUid(int uid) {
-        this.uid = uid;
-    }
+    @Nullable public String getDescription() { return description; }
+    public void setDescription(@Nullable String description) { this.description = description; }
 
-    @NonNull
-    public String getShortName() {
-        return shortName;
-    }
+    public long getStartDate() { return startDate; }
+    public void setStartDate(long startDate) { this.startDate = startDate; }
 
-    public void setShortName(@NonNull String shortName) {
-        this.shortName = shortName;
-    }
+    public long getEndDate() { return endDate; }
+    public void setEndDate(long endDate) { this.endDate = endDate; }
 
-    @Nullable
-    public String getDescription() {
-        return description;
-    }
+    @Nullable public String getDoctorName() { return doctorName; }
+    public void setDoctorName(@Nullable String doctorName) { this.doctorName = doctorName; }
 
-    public void setDescription(@Nullable String description) {
-        this.description = description;
-    }
+    @Nullable public String getDoctorLocation() { return doctorLocation; }
+    public void setDoctorLocation(@Nullable String doctorLocation) { this.doctorLocation = doctorLocation; }
 
-    public long getStartDate() {
-        return startDate;
-    }
+    @Nullable public Double getDoctorLatitude() { return doctorLatitude; }
+    public void setDoctorLatitude(@Nullable Double doctorLatitude) { this.doctorLatitude = doctorLatitude; }
 
-    public void setStartDate(long startDate) {
-        this.startDate = startDate;
-    }
+    @Nullable public Double getDoctorLongitude() { return doctorLongitude; }
+    public void setDoctorLongitude(@Nullable Double doctorLongitude) { this.doctorLongitude = doctorLongitude; }
 
-    public long getEndDate() {
-        return endDate;
-    }
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) { isActive = active; }
 
-    public void setEndDate(long endDate) {
-        this.endDate = endDate;
-    }
+    @Nullable public Long getLastDateReceived() { return lastDateReceived; }
+    public void setLastDateReceived(@Nullable Long lastDateReceived) { this.lastDateReceived = lastDateReceived; }
 
-    public int getTimeTermId() {
-        return timeTermId;
-    }
-
-    public void setTimeTermId(int timeTermId) {
-        this.timeTermId = timeTermId;
-    }
-
-    @Nullable
-    public String getDoctorName() {
-        return doctorName;
-    }
-
-    public void setDoctorName(@Nullable String doctorName) {
-        this.doctorName = doctorName;
-    }
-
-    @Nullable
-    public String getDoctorLocation() {
-        return doctorLocation;
-    }
-
-    public void setDoctorLocation(@Nullable String doctorLocation) {
-        this.doctorLocation = doctorLocation;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
-
-    @Nullable
-    public Long getLastDateReceived() {
-        return lastDateReceived;
-    }
-
-    public void setLastDateReceived(@Nullable Long lastDateReceived) {
-        this.lastDateReceived = lastDateReceived;
-    }
-
-    public boolean isHasReceivedToday() {
-        return hasReceivedToday;
-    }
-
-    public void setHasReceivedToday(boolean hasReceivedToday) {
-        this.hasReceivedToday = hasReceivedToday;
-    }
+    public boolean isHasReceivedToday() { return hasReceivedToday; }
+    public void setHasReceivedToday(boolean hasReceivedToday) { this.hasReceivedToday = hasReceivedToday; }
 }
