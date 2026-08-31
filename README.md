@@ -86,29 +86,7 @@ private void performDelete(int uid) {
     }}  
 }
 
- #### 
-
-    #### 
-
-       #### 
-
-         #### 
-
-         #### 
-
-          #### 
-
-         #### 
-
-          #### 
-
-          #### 
-
-          #### 
-
-         #### 
-
-#### ***Requirment C : Periodic Background Check Of the DB***
+***Requirment C : Periodic Background Check Of the DB***
 
 **Description:** A DrugCheckWorker runs periodically to update system-managed fields: isActive (based on current date) and hasReceivedToday (resets daily).
 
