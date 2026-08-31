@@ -8,7 +8,7 @@
 
 ### **Functionality Details**
 
-1. #### ***Requirment A: Record a new Prescription Drug***
+ #### ***Requirment A: Record a new Prescription Drug***
 
 **Description:** Users can add new medications by providing a short name, description, start/end dates, doctor details, and selecting specific time terms (e.g., "before-breakfast"). Data is stored in a relational Room database.
 
@@ -49,9 +49,9 @@ AppDatabase.databaseWriteExecutor.execute(() \-\> {
     });  
 });
 
-2. #### 
+ #### 
 
-   3. #### ***Requirment B: Delete a Prescription Drug***
+    #### ***Requirment B: Delete a Prescription Drug***
 
 **Description:** Medications can be removed by selecting them from the delete list. The app confirms the action and displays a pop up showing exactly how many rows were affected in the database.
 
@@ -86,27 +86,27 @@ private void performDelete(int uid) {
     }}  
 }
 
-4. #### 
+ #### 
 
-   5. #### 
+    #### 
 
-      6. #### 
+       #### 
 
-         7. #### 
+         #### 
 
-         8. #### 
+         #### 
 
-         9. #### 
+          #### 
 
-         10. #### 
+         #### 
 
-         11. #### 
+          #### 
 
-         12. #### 
+          #### 
 
-         13. #### 
+          #### 
 
-         14. #### 
+         #### 
 
 #### ***Requirment C : Periodic Background Check Of the DB***
 
@@ -150,7 +150,7 @@ WorkManager.getInstance(context).enqueueUniquePeriodicWork(
         ExistingPeriodicWorkPolicy.KEEP,  
         request);
 
-15. #### ***Requirment D: View Active and Detailed Prescriptions***
+ #### ***Requirment D: View Active and Detailed Prescriptions***
 
 **Description:** The app provides an overview of prescriptions with filters for Active, Future, Expired, and Taken Today. Selecting a drug opens a detailed view showing all recorded information.
 
@@ -195,59 +195,6 @@ private void loadDrug() {
         }  
     });}
 
-16. #### 
-
-    17. #### 
-
-        18. #### 
-
-            19. #### 
-
-            20. #### 
-
-            21. #### 
-
-            22. #### 
-
-            23. #### 
-
-            24. #### 
-
-            25. #### 
-
-            26. #### 
-
-            27. #### 
-
-            28. #### 
-
-            29. #### 
-
-            30. #### 
-
-            31. #### 
-
-            32. #### 
-
-            33. #### 
-
-            34. #### 
-
-            35. #### 
-
-            36. #### 
-
-            37. #### 
-
-            38. #### 
-
-            39. #### 
-
-            40. #### 
-
-            41. #### 
-
-            42. #### 
 
 #### ***Requirment E: Receive Medication \+ Google Maps Integration***
 
@@ -282,7 +229,7 @@ private void onMarkReceivedClicked() {
     });  
 }
 
-43. #### ***Requirment F: Export Active Prescriptions***
+ #### ***Requirment F: Export Active Prescriptions***
 
 **Description:** The app can export all currently active medications into a formatted HTML file stored in the public Downloads directory.
 
@@ -338,7 +285,7 @@ private void onExportClicked() {
     });  
 }
 
-44. #### ***Requirment G: Content Provider***
+ #### ***Requirment G: Content Provider***
 
 **Description:** A DrugContentProvider is implemented to allow other applications to perform CRUD operations on the prescription database.
 
