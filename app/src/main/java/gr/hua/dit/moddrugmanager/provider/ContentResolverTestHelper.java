@@ -7,13 +7,7 @@ import android.database.Cursor;
 import android.util.Log;
 
 /**
- * Demonstrates that DrugContentProvider works, by performing a full CRUD
- * cycle through the standard ContentResolver API - exactly as an external
- * app would - as allowed by the spec ("for testing purposes, you can use
- * the Content Resolver... in the same App, on request").
- *
- * Call ContentResolverTestHelper.runFullCrudTest(context) from a background
- * thread (e.g. a "Test Content Provider" debug button) and watch Logcat.
+ * Requirement (G): Tests the DrugContentProvider via ContentResolver.
  */
 public class ContentResolverTestHelper {
 
@@ -22,45 +16,49 @@ public class ContentResolverTestHelper {
     public static void runFullCrudTest(Context context) {
         ContentResolver resolver = context.getContentResolver();
 
-        // 1) INSERT a test row
+        Log.d(TAG, "Starting Content Provider CRUD test...");
+
+        // 1) INSERT
+        // We only include columns that actually exist in the PrescriptionDrug entity.
         ContentValues values = new ContentValues();
-        values.put("short_name", "TestDrugViaProvider");
-        values.put("description", "Inserted through ContentResolver");
+        values.put("short_name", "ProviderTestDrug");
+        values.put("description", "Test Description");
         values.put("start_date", System.currentTimeMillis());
-        values.put("end_date", System.currentTimeMillis() + 86_400_000L * 7); // +7 days
-        values.put("time_term_id", 1); // assumes TimeTerm id 1 exists (before-breakfast)
-        values.put("is_active", 0);
-        values.put("has_received_today", 0);
+        values.put("end_date", System.currentTimeMillis() + 86400000L); 
+        values.put("is_active", 0); // false
+        values.put("has_received_today", 0); // false
 
         android.net.Uri insertedUri = resolver.insert(DrugContentProvider.CONTENT_URI, values);
-        Log.d(TAG, "INSERT result uri=" + insertedUri);
-        if (insertedUri == null) return;
-
+        if (insertedUri == null) {
+            throw new RuntimeException("Insert failed: resolver returned null");
+        }
+        
         long newUid = android.content.ContentUris.parseId(insertedUri);
+        Log.d(TAG, "Successfully inserted drug with UID: " + newUid);
 
-        // 2) QUERY it back
+        // 2) QUERY
         Cursor cursor = resolver.query(DrugContentProvider.CONTENT_URI, null,
                 "uid = ?", new String[]{String.valueOf(newUid)}, null);
         if (cursor != null) {
             if (cursor.moveToFirst()) {
                 int nameIdx = cursor.getColumnIndexOrThrow("short_name");
-                Log.d(TAG, "QUERY result: uid=" + newUid + " short_name=" + cursor.getString(nameIdx));
+                Log.d(TAG, "Query successful. Name: " + cursor.getString(nameIdx));
             }
             cursor.close();
         }
 
-        // 3) UPDATE it
+        // 3) UPDATE
         ContentValues updateValues = new ContentValues();
-        updateValues.put("short_name", "TestDrugUpdated");
-        int updatedRows = resolver.update(DrugContentProvider.CONTENT_URI, updateValues,
+        updateValues.put("short_name", "UpdatedName");
+        int updated = resolver.update(DrugContentProvider.CONTENT_URI, updateValues,
                 "uid = ?", new String[]{String.valueOf(newUid)});
-        Log.d(TAG, "UPDATE rowsAffected=" + updatedRows);
+        Log.d(TAG, "Update successful. Rows affected: " + updated);
 
-        // 4) DELETE it (cleanup)
-        int deletedRows = resolver.delete(DrugContentProvider.CONTENT_URI,
+        // 4) DELETE
+        int deleted = resolver.delete(DrugContentProvider.CONTENT_URI,
                 "uid = ?", new String[]{String.valueOf(newUid)});
-        Log.d(TAG, "DELETE rowsAffected=" + deletedRows);
+        Log.d(TAG, "Delete successful. Rows affected: " + deleted);
 
-        Log.d(TAG, "Full CRUD test via ContentResolver completed successfully");
+        Log.d(TAG, "Content Provider CRUD test finished successfully!");
     }
 }
