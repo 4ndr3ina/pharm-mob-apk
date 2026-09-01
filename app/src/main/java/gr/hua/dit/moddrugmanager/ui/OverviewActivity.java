@@ -12,10 +12,6 @@ import gr.hua.dit.moddrugmanager.R;
 import gr.hua.dit.moddrugmanager.data.AppDatabase;
 import gr.hua.dit.moddrugmanager.provider.ContentResolverTestHelper;
 
-/**
- * Main menu of the application.
- * Requirement (G): Includes a button to test the Content Provider on request.
- */
 public class OverviewActivity extends AppCompatActivity {
 
     private static final String TAG = "OverviewActivity";
@@ -42,7 +38,6 @@ public class OverviewActivity extends AppCompatActivity {
 
         findViewById(R.id.btnExport).setOnClickListener(v -> onExportClicked());
 
-        // Requirement (G): Trigger Content Provider CRUD test on request
         findViewById(R.id.btnTestProvider).setOnClickListener(v -> onTestProviderClicked());
     }
 
@@ -59,7 +54,6 @@ public class OverviewActivity extends AppCompatActivity {
         });
     }
 
-    // Requirement (F): export all active drugs to an HTML file in Downloads.
     private void onExportClicked() {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             gr.hua.dit.moddrugmanager.util.DrugExporter.exportActiveDrugs(

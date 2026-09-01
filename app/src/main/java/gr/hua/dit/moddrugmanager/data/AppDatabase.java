@@ -68,8 +68,6 @@ public abstract class AppDatabase extends RoomDatabase {
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
             super.onOpen(db);
-            // Check if empty on every open using raw SQL to ensure it's synchronous
-            // and ready before the first query from an Activity.
             try (android.database.Cursor cursor = db.query("SELECT COUNT(*) FROM time_term", null)) {
                 int count = 0;
                 if (cursor != null && cursor.moveToFirst()) {

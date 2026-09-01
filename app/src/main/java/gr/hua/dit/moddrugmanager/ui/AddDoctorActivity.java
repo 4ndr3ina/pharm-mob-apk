@@ -18,9 +18,6 @@ import gr.hua.dit.moddrugmanager.R;
 import gr.hua.dit.moddrugmanager.data.AppDatabase;
 import gr.hua.dit.moddrugmanager.data.Doctor;
 
-/**
- * Saves a reusable Doctor (name + address).
- */
 public class AddDoctorActivity extends AppCompatActivity {
 
     private static final String TAG = "AddDoctorActivity";
@@ -38,7 +35,6 @@ public class AddDoctorActivity extends AppCompatActivity {
 
         db = AppDatabase.getInstance(getApplicationContext());
 
-        // Safety check to prevent crash if layout ID is not found
         TextView tvFullName = findViewById(R.id.tvAndrianiKoui);
         if (tvFullName != null) {
             tvFullName.setText(STUDENT_FULL_NAME);

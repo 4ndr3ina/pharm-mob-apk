@@ -6,13 +6,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-/**
- * A saved doctor the user can reuse across multiple Prescription Drugs,
- * instead of retyping the name/address every time. Latitude/longitude are
- * filled in automatically (via Android's Geocoder) when the doctor is
- * created, so the app can drop an exact pin on the map instead of relying
- * on a text search.
- */
 @Entity(tableName = "doctor")
 public class Doctor {
 

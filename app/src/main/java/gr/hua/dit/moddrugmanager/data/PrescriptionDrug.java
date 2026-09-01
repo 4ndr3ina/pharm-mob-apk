@@ -6,25 +6,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-/**
- * Represents a single Prescription Drug, as described in Comment #1 of the spec.
- *
- * NOTE on Time Term: a drug can now be taken at MULTIPLE times of day (e.g.
- * before-breakfast AND after-dinner), so the old single time_term_id foreign
- * key was removed. The relationship now lives in
- * PrescriptionDrugTimeTermCrossRef (a many-to-many junction table).
- *
- * NOTE on Doctor: doctorName/doctorLocation remain plain text fields, exactly
- * as the spec requires (and as used by the (F) export). They can now be
- * auto-filled by picking a previously saved Doctor (see Doctor.java), which
- * also carries geocoded coordinates - doctorLatitude/doctorLongitude are an
- * optional denormalized copy of those coordinates, used to drop an exact pin
- * on Google Maps in requirement (E) instead of relying on a text search.
- *
- * System-managed fields (null/false at creation, updated later by the user or
- * by the periodic background check, see Comment #3): isActive,
- * lastDateReceived, hasReceivedToday.
- */
 @Entity(tableName = "prescription_drug")
 public class PrescriptionDrug {
 
@@ -40,10 +21,10 @@ public class PrescriptionDrug {
     private String description;
 
     @ColumnInfo(name = "start_date")
-    private long startDate; // epoch millis, day-precision
+    private long startDate;
 
     @ColumnInfo(name = "end_date")
-    private long endDate; // epoch millis, day-precision
+    private long endDate;
 
     @Nullable
     @ColumnInfo(name = "doctor_name")
@@ -60,8 +41,6 @@ public class PrescriptionDrug {
     @Nullable
     @ColumnInfo(name = "doctor_longitude")
     private Double doctorLongitude;
-
-    // ---- system-managed fields (Comment #3) ----
 
     @ColumnInfo(name = "is_active")
     private boolean isActive;

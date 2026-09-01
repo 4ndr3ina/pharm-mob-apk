@@ -81,7 +81,6 @@
                 android:textColor="@color/white"
                 android:backgroundTint="@color/primary_blue" />
 
-            <!-- Requirement (G): Button to trigger the Content Provider test -->
             <Button
                 android:id="@+id/btnTestProvider"
                 android:layout_width="match_parent"

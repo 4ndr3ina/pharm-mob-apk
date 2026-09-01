@@ -5,16 +5,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-/**
- * Lookup table holding the fixed list of "Time Terms" a Prescription Drug can be
- * associated with (Comment #2 of the spec):
- * before-breakfast, at-breakfast, after-breakfast,
- * before-lunch,     at-lunch,     after-lunch,
- * before-dinner,    at-dinner,    after-dinner
- *
- * The table is pre-populated once, when the database is created (see AppDatabase).
- * orderIndex is used to sort Prescription Drugs by "time of day" in requirement (D).
- */
 @Entity(tableName = "time_term")
 public class TimeTerm {
 
@@ -23,10 +13,10 @@ public class TimeTerm {
 
     @NonNull
     @ColumnInfo(name = "term_name")
-    private String termName; // e.g. "before-breakfast"
+    private String termName;
 
     @ColumnInfo(name = "order_index")
-    private int orderIndex; // 0..8, defines chronological order across the day
+    private int orderIndex;
 
     public TimeTerm(@NonNull String termName, int orderIndex) {
         this.termName = termName;

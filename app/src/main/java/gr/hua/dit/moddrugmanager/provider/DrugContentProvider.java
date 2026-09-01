@@ -14,16 +14,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import gr.hua.dit.moddrugmanager.data.AppDatabase;
 
-/**
- * Requirement (G): lets other Android apps read/write the prescription_drug
- * table through the standard ContentProvider contract, tested in-app via
- * ContentResolver (see ContentProviderTestHelper).
- *
- * This talks to the underlying SQLite database directly (through Room's
- * SupportSQLiteDatabase), bypassing the DAO layer, because ContentProvider's
- * query()/insert()/update()/delete() methods need to return a Cursor / Uri /
- * row-count in the shape the contract expects - Room's DAOs don't expose that.
- */
 public class DrugContentProvider extends ContentProvider {
 
     private static final String TAG = "DrugContentProvider";
@@ -47,7 +37,6 @@ public class DrugContentProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         db = AppDatabase.getInstance(getContext().getApplicationContext());
-        Log.d(TAG, "DrugContentProvider created");
         return true;
     }
 
@@ -72,7 +61,6 @@ public class DrugContentProvider extends ContentProvider {
                 + (finalSelection != null ? " WHERE " + finalSelection : "")
                 + (sortOrder != null ? " ORDER BY " + sortOrder : "");
 
-        Log.d(TAG, "query() uri=" + uri + " sql=" + query);
         Cursor cursor = writableDb().query(query, finalArgs != null ? finalArgs : new Object[0]);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
@@ -97,7 +85,6 @@ public class DrugContentProvider extends ContentProvider {
 
         long newId = writableDb().insert(TABLE_NAME,
                 android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT, values);
-        Log.d(TAG, "insert() new uid=" + newId);
 
         if (newId <= 0) return null;
         getContext().getContentResolver().notifyChange(uri, null);
@@ -116,7 +103,6 @@ public class DrugContentProvider extends ContentProvider {
         }
 
         int rows = writableDb().delete(TABLE_NAME, finalSelection, finalArgs);
-        Log.d(TAG, "delete() uri=" + uri + " rowsAffected=" + rows);
 
         if (rows > 0) getContext().getContentResolver().notifyChange(uri, null);
         return rows;
@@ -138,7 +124,6 @@ public class DrugContentProvider extends ContentProvider {
 
         int rows = writableDb().update(TABLE_NAME,
                 android.database.sqlite.SQLiteDatabase.CONFLICT_ABORT, values, finalSelection, finalArgs);
-        Log.d(TAG, "update() uri=" + uri + " rowsAffected=" + rows);
 
         if (rows > 0) getContext().getContentResolver().notifyChange(uri, null);
         return rows;

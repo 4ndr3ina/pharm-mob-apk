@@ -21,11 +21,6 @@ import gr.hua.dit.moddrugmanager.data.AppDatabase;
 import gr.hua.dit.moddrugmanager.data.PrescriptionDrug;
 import gr.hua.dit.moddrugmanager.data.PrescriptionDrugWithTimeTerms;
 
-/**
- * Requirement (D)/Comment #4: the detail screen shown after tapping an item in
- * the overview list. Displays every recorded field for one Prescription Drug.
- * Updated to support multiple Time Terms per drug.
- */
 public class DrugDetailActivity extends AppCompatActivity {
 
     private static final String TAG = "DrugDetailActivity";
@@ -68,7 +63,6 @@ public class DrugDetailActivity extends AppCompatActivity {
         btnViewOnMap = findViewById(R.id.btnViewOnMap);
 
         if (uid == -1) {
-            Log.d(TAG, "No UID passed to detail screen, closing");
             finish();
             return;
         }
@@ -121,14 +115,12 @@ public class DrugDetailActivity extends AppCompatActivity {
             PrescriptionDrugWithTimeTerms item = db.prescriptionDrugDao().getByIdWithTimeTermsSync(uid);
             
             if (item == null || item.drug == null) {
-                Log.d(TAG, "Drug with UID=" + uid + " not found");
                 runOnUiThread(this::finish);
                 return;
             }
             
             currentDrug = item.drug;
             runOnUiThread(() -> bindToViews(item));
-            Log.d(TAG, "Loaded detail for UID=" + uid);
         });
     }
 
@@ -139,9 +131,7 @@ public class DrugDetailActivity extends AppCompatActivity {
         tvDescription.setText(emptyIfNull(drug.getDescription()));
         tvStartDate.setText(displayFormat.format(drug.getStartDate()));
         tvEndDate.setText(displayFormat.format(drug.getEndDate()));
-        
         tvTimeTerm.setText(item.getTimeTermsDisplay());
-        
         tvDoctorName.setText(emptyIfNull(drug.getDoctorName()));
         tvDoctorLocation.setText(emptyIfNull(drug.getDoctorLocation()));
         tvIsActive.setText(drug.isActive() ? "Yes" : "No");
@@ -152,8 +142,6 @@ public class DrugDetailActivity extends AppCompatActivity {
 
         boolean hasLocation = !TextUtils.isEmpty(drug.getDoctorLocation()) || drug.getDoctorLatitude() != null;
         btnViewOnMap.setVisibility(hasLocation ? View.VISIBLE : View.GONE);
-
-        // Hide "Mark Received" if the medication is not active or if it has already been taken today
         btnMarkReceived.setVisibility(drug.isActive() && !drug.isHasReceivedToday() ? View.VISIBLE : View.GONE);
     }
 
@@ -176,19 +164,15 @@ public class DrugDetailActivity extends AppCompatActivity {
         Uri geoUri;
         String label = Uri.encode(currentDrug.getDoctorName() != null ? currentDrug.getDoctorName() : "Doctor");
         if (lat != null && lng != null) {
-            // geo:lat,lng?q=lat,lng(label)
             geoUri = Uri.parse("geo:" + lat + "," + lng + "?q=" + lat + "," + lng + "(" + label + ")");
         } else {
-            // geo:0,0?q=address
             geoUri = Uri.parse("geo:0,0?q=" + Uri.encode(address));
         }
 
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, geoUri);
-        // Do NOT setPackage("com.google.android.apps.maps") to allow other map apps to respond
         try {
             startActivity(mapIntent);
         } catch (android.content.ActivityNotFoundException e) {
-            Log.d(TAG, "No map app found, falling back to browser");
             Uri webUri = (lat != null && lng != null)
                     ? Uri.parse("https://www.google.com/maps/search/?api=1&query=" + lat + "," + lng)
                     : Uri.parse("https://www.google.com/maps/search/?api=1&query=" + Uri.encode(address));

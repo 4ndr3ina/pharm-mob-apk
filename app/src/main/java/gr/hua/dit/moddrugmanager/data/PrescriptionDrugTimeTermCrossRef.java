@@ -5,10 +5,6 @@ import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
 
-/**
- * Junction (cross-reference) table enabling a many-to-many relationship
- * between PrescriptionDrug and TimeTerm.
- */
 @Entity(
         tableName = "prescription_drug_time_term_cross_ref",
         primaryKeys = {"drugUid", "timeTermId"},
