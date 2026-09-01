@@ -21,17 +21,6 @@ import java.util.Locale;
 import gr.hua.dit.moddrugmanager.data.AppDatabase;
 import gr.hua.dit.moddrugmanager.data.PrescriptionDrugWithTimeTerms;
 
-/**
- * Requirement (F): exports every still-active Prescription Drug (with all its
- * recorded data) into an HTML file placed in the shared Downloads folder, so
- * another Android app can open it.
- *
- * On Android 10+ (API 29+) direct File access to Downloads is restricted by
- * scoped storage, so we write through MediaStore instead - this is the
- * officially supported way to put a file in a shared folder without needing
- * the WRITE_EXTERNAL_STORAGE permission. On older API levels we fall back to
- * the classic File-based approach.
- */
 public class DrugExporter {
 
     private static final String TAG = "DrugExporter";
@@ -41,21 +30,16 @@ public class DrugExporter {
         void onResult(boolean success, String message);
     }
 
-    // Call this from a background thread (it does DB + disk I/O).
     public static void exportActiveDrugs(Context context, ExportCallback callback) {
         AppDatabase db = AppDatabase.getInstance(context);
         List<PrescriptionDrugWithTimeTerms> activeDrugs = db.prescriptionDrugDao().getActiveDrugsOrderedByTimeSync();
 
         if (activeDrugs.isEmpty()) {
-            Log.d(TAG, "Export skipped: no active drugs found");
             callback.onResult(false, "No active medications to export");
             return;
         }
 
         String html = buildHtml(activeDrugs);
-        // Timestamped filename so every export creates a fresh file - avoids
-        // needing to search for/overwrite an existing one, which requires
-        // extra read permissions we haven't requested.
         String fileName = "prescription_drugs_export_" + System.currentTimeMillis() + ".html";
 
         try {
@@ -64,10 +48,8 @@ public class DrugExporter {
             } else {
                 writeViaFile(fileName, html);
             }
-            Log.d(TAG, "Exported " + activeDrugs.size() + " active drugs to " + fileName);
             callback.onResult(true, "Exported " + activeDrugs.size() + " medications to Downloads/" + fileName);
         } catch (Exception e) {
-            Log.e(TAG, "Export failed", e);
             callback.onResult(false, "Export failed: " + e.getClass().getSimpleName() + " - " + e.getMessage());
         }
     }
@@ -92,7 +74,6 @@ public class DrugExporter {
         }
     }
 
-    // Pre-API 29 fallback: classic direct file write to the public Downloads directory.
     private static void writeViaFile(String fileName, String html) throws IOException {
         File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         if (!downloadsDir.exists()) downloadsDir.mkdirs();

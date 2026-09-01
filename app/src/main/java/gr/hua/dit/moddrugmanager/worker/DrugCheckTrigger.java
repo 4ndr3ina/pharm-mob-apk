@@ -6,11 +6,6 @@ import android.util.Log;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
-/**
- * Lets any screen trigger an immediate run of DrugCheckWorker, e.g. from a
- * "Run Check Now" button. Useful for demonstrating requirement (C) in your
- * video without waiting for the real 15-minute periodic schedule to fire.
- */
 public class DrugCheckTrigger {
 
     private static final String TAG = "DrugCheckTrigger";

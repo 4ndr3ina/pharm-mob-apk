@@ -14,10 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import gr.hua.dit.moddrugmanager.R;
 import gr.hua.dit.moddrugmanager.data.PrescriptionDrugWithTimeTerms;
 
-/**
- * RecyclerView adapter showing UID, Short Name and ALL Time-Terms (comma
- * separated, chronologically sorted) for each medication.
- */
 public class MedicationAdapter extends RecyclerView.Adapter<MedicationAdapter.MedicationViewHolder> {
 
     public interface OnItemClickListener {

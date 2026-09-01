@@ -56,7 +56,6 @@ public class AllPrescriptionsActivity extends AppCompatActivity {
         findViewById(R.id.btnFilterTakenToday).setOnClickListener(v -> 
                 observeData(db.prescriptionDrugDao().getTakenTodayPrescriptions()));
 
-        // Default to Active
         observeData(db.prescriptionDrugDao().getActivePrescriptions());
     }
 

@@ -3,8 +3,6 @@
     <color name="primary_blue">#1565C0</color>
     <color name="dark_blue">#0D47A1</color>
     <color name="light_blue">#E3F2FD</color>
-
-    <!-- Base -->
     <color name="white">#FFFFFF</color>
     <color name="text_dark">#0D1B2A</color>
     <color name="hint_grey">#5C6B73</color>

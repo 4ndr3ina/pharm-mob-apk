@@ -33,7 +33,6 @@
             android:textColor="@color/primary_blue"
             android:layout_marginBottom="20dp" />
 
-        <!-- Reusable label/value pairs -->
         <TextView style="@style/DetailLabel" android:text="ID (UID)" />
         <TextView android:id="@+id/tvUid" style="@style/DetailValue" />
 
@@ -64,7 +63,6 @@
         <TextView style="@style/DetailLabel" android:text="Last Date Received" />
         <TextView android:id="@+id/tvLastDateReceived" style="@style/DetailValue" />
 
-        <!-- Requirement (E) buttons live here -->
         <Button
             android:id="@+id/btnMarkReceived"
             android:layout_width="match_parent"

@@ -31,11 +31,6 @@ import gr.hua.dit.moddrugmanager.data.Doctor;
 import gr.hua.dit.moddrugmanager.data.PrescriptionDrug;
 import gr.hua.dit.moddrugmanager.data.TimeTerm;
 
-/**
- * Requirement (A): Record a new Prescription Drug.
- * Supports multiple Time Terms (Checkboxes) and a Doctor Spinner.
- * Uses LiveData to observe TimeTerms, avoiding race conditions during initial seeding.
- */
 public class AddDrugActivity extends AppCompatActivity {
 
     private static final String TAG = "AddDrugActivity";
@@ -56,7 +51,6 @@ public class AddDrugActivity extends AppCompatActivity {
     private List<Doctor> doctors = new ArrayList<>();
     private Doctor selectedDoctor = null; 
     
-    // Flags for selection persistence
     private boolean shouldReloadDoctors = false;
     private int restoredDoctorId = -1;
 
@@ -86,7 +80,6 @@ public class AddDrugActivity extends AppCompatActivity {
         btnEndDate = findViewById(R.id.btnEndDate);
         btnSave = findViewById(R.id.btnSave);
 
-        // Restore state if activity was recreated (e.g. returning from Maps on low-RAM device)
         if (savedInstanceState != null) {
             restoredDoctorId = savedInstanceState.getInt("selected_doctor_id", -1);
             shouldReloadDoctors = savedInstanceState.getBoolean("should_reload", false);
@@ -100,14 +93,17 @@ public class AddDrugActivity extends AppCompatActivity {
             }
         }
 
+        if (timeTermCheckboxContainer == null) {
+            Log.e(TAG, "timeTermCheckboxContainer is NULL");
+        }
+
         btnStartDate.setOnClickListener(v -> pickDate(true));
         btnEndDate.setOnClickListener(v -> pickDate(false));
         btnSave.setOnClickListener(v -> onSaveClicked());
 
         if (btnAddNewDoctor != null) {
             btnAddNewDoctor.setOnClickListener(v -> {
-                Log.d(TAG, "Navigating to AddDoctorActivity");
-                shouldReloadDoctors = true; // Refresh list only when returning from adding a doctor
+                shouldReloadDoctors = true;
                 startActivity(new Intent(this, AddDoctorActivity.class));
             });
         }
@@ -154,11 +150,50 @@ public class AddDrugActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Only reload if returning from AddDoctorActivity, to preserve selection otherwise
         if (shouldReloadDoctors) {
             loadDoctorsIntoSpinner();
             shouldReloadDoctors = false;
         }
+    }
+
+    private void ensureTimeTermsExist() {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            int existing = db.timeTermDao().count();
+            if (existing > 0) return;
+
+            String[] names = {
+                    "before-breakfast", "at-breakfast", "after-breakfast",
+                    "before-lunch", "at-lunch", "after-lunch",
+                    "before-dinner", "at-dinner", "after-dinner"
+            };
+            List<TimeTerm> seed = new ArrayList<>();
+            for (int i = 0; i < names.length; i++) {
+                seed.add(new TimeTerm(names[i], i));
+            }
+            db.timeTermDao().insertAll(seed);
+        });
+    }
+
+    private void observeTimeTerms() {
+        db.timeTermDao().getAll().observe(this, terms -> {
+            if (timeTermCheckboxContainer == null || terms == null || terms.isEmpty()) return;
+
+            timeTermCheckboxContainer.removeAllViews();
+            timeTermCheckboxes.clear();
+
+            for (TimeTerm term : terms) {
+                CheckBox cb = new CheckBox(this);
+                cb.setText(term.getTermName());
+                cb.setTag(term.getId());
+                cb.setTextSize(18);
+                cb.setTextColor(getColor(R.color.text_dark));
+                cb.setButtonTintList(
+                        android.content.res.ColorStateList.valueOf(getColor(R.color.dark_blue)));
+                cb.setPadding(8, 16, 8, 16);
+                timeTermCheckboxContainer.addView(cb);
+                timeTermCheckboxes.add(cb);
+            }
+        });
     }
 
     private void loadDoctorsIntoSpinner() {
@@ -166,10 +201,9 @@ public class AddDrugActivity extends AppCompatActivity {
             doctors = db.doctorDao().getAllSync();
             runOnUiThread(() -> {
                 if (spinnerDoctor == null) return;
-
-                // Capture selection to restore it
+                
                 int idToRestore = (selectedDoctor != null) ? selectedDoctor.getId() : restoredDoctorId;
-
+                
                 List<String> names = new ArrayList<>();
                 names.add("None");
                 if (doctors != null) {
@@ -181,7 +215,6 @@ public class AddDrugActivity extends AppCompatActivity {
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinnerDoctor.setAdapter(adapter);
 
-                // Restore selection
                 if (idToRestore != -1 && doctors != null) {
                     for (int i = 0; i < doctors.size(); i++) {
                         if (doctors.get(i).getId() == idToRestore) {
@@ -218,34 +251,6 @@ public class AddDrugActivity extends AppCompatActivity {
                     : Uri.parse("https://www.google.com/maps/search/?api=1&query=" + Uri.encode(address));
             startActivity(new Intent(Intent.ACTION_VIEW, webUri));
         }
-    }
-
-    private void ensureTimeTermsExist() {
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            int existing = db.timeTermDao().count();
-            if (existing > 0) return;
-            String[] names = {"before-breakfast", "at-breakfast", "after-breakfast", "before-lunch", "at-lunch", "after-lunch", "before-dinner", "at-dinner", "after-dinner"};
-            List<TimeTerm> seed = new ArrayList<>();
-            for (int i = 0; i < names.length; i++) seed.add(new TimeTerm(names[i], i));
-            db.timeTermDao().insertAll(seed);
-        });
-    }
-
-    private void observeTimeTerms() {
-        db.timeTermDao().getAll().observe(this, terms -> {
-            if (timeTermCheckboxContainer == null || terms == null || terms.isEmpty()) return;
-            timeTermCheckboxContainer.removeAllViews();
-            timeTermCheckboxes.clear();
-            for (TimeTerm term : terms) {
-                CheckBox cb = new CheckBox(this);
-                cb.setText(term.getTermName());
-                cb.setTag(term.getId());
-                cb.setTextSize(18);
-                cb.setPadding(8, 16, 8, 16);
-                timeTermCheckboxContainer.addView(cb);
-                timeTermCheckboxes.add(cb);
-            }
-        });
     }
 
     private void pickDate(boolean isStart) {

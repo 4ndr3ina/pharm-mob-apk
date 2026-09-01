@@ -14,16 +14,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import gr.hua.dit.moddrugmanager.R;
 import gr.hua.dit.moddrugmanager.data.AppDatabase;
 import gr.hua.dit.moddrugmanager.data.PrescriptionDrugWithTimeTerms;
-/**
- * Requirement (B): Delete an existing Prescription Drug.
- * Shows a list of all medications (UID, Short Name, Time-Term - Comment #4 style).
- * Tapping one asks for confirmation, then deletes it and informs the user via a
- * pop-up how many rows were affected.
- */
+
 public class DeleteDrugActivity extends AppCompatActivity {
 
     private static final String TAG = "DeleteDrugActivity";
-    private static final String STUDENT_FULL_NAME = "Full Name Here";
+    private static final String STUDENT_FULL_NAME = "Andriani Koui";
 
     private AppDatabase db;
     private MedicationAdapter adapter;
@@ -38,7 +33,9 @@ public class DeleteDrugActivity extends AppCompatActivity {
         db = AppDatabase.getInstance(getApplicationContext());
 
         TextView tvFullName = findViewById(R.id.tvAndrianiKoui);
-        tvFullName.setText(STUDENT_FULL_NAME);
+        if (tvFullName != null) {
+            tvFullName.setText(STUDENT_FULL_NAME);
+        }
 
         recyclerView = findViewById(R.id.recyclerView);
         tvEmptyMessage = findViewById(R.id.tvEmptyMessage);
@@ -47,8 +44,6 @@ public class DeleteDrugActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-        // LiveData automatically refreshes the list whenever the DB changes
-        // (e.g. right after a delete), so we don't need to manually re-query.
         db.prescriptionDrugDao().getAllWithTimeTerms().observe(this, this::onListChanged);
     }
 

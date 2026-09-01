@@ -118,9 +118,6 @@
             android:layout_marginTop="24dp"
             android:layout_marginBottom="6dp" />
 
-        <!-- Populated at runtime with one CheckBox per TimeTerm (before-breakfast,
-             at-breakfast, ... after-dinner) - lets a drug be taken at several
-             times a day. -->
         <LinearLayout
             android:id="@+id/timeTermCheckboxContainer"
             android:layout_width="match_parent"
@@ -147,8 +144,6 @@
             android:background="@color/light_blue"
             android:padding="10dp" />
 
-        <!-- Only shown once a real doctor (not "None") is selected, so the
-             user can confirm the location is correct before saving. -->
         <Button
             android:id="@+id/btnViewDoctorOnMap"
             android:layout_width="match_parent"

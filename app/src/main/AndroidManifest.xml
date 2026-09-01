@@ -2,17 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Only needed for the pre-Android-10 file-write fallback in DrugExporter.
-         MediaStore (used on API 29+) does not need this permission. -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
 
-    <!-- Needed by android.location.Geocoder (used in AddDoctorActivity) to
-         look up coordinates for a typed address. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".DrugManagerApplication"
+        android:name=".worker.DrugManagerApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

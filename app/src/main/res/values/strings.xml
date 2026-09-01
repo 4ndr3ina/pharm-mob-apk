@@ -22,7 +22,6 @@
     <string name="msg_saved">Medication saved!</string>
     <string name="msg_error_terms">Time terms not loaded</string>
 
-    <!-- Delete Activity -->
     <string name="delete_instruction">Tap a medication to delete it</string>
     <string name="no_medications">No medications recorded yet.</string>
     <string name="delete_confirm_title">Delete Medication</string>
@@ -34,7 +33,6 @@
     <string name="delete_failure">Nothing was deleted.\nRows affected: %1$d</string>
     <string name="ok">OK</string>
 
-    <!-- Menu -->
     <string name="action_delete">Delete Medication</string>
     <string name="action_edit">Edit Medication</string>
     <string name="action_share">Share Medication</string>
